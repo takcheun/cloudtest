@@ -1,0 +1,40 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a filter
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/flt-f-{{PORT}}.json
+        method: post
+        content:
+          {
+           "vzFilter":{
+      "attributes":{
+         "name":"f-{{PORT}}",
+         "status":"created"
+      },
+      "children":[
+         {
+            "vzEntry":{
+               "attributes":{
+                  "name":"{{PORT}}",
+                  "etherT":"ip",
+                  "prot":"{{PROTOCOL}}",
+                  "dFromPort":"{{PORT}}",
+                  "dToPort":"unspecified",
+                  "status":"created"
+               },
+               "children":[
+
+               ]
+            }
+         }
+      ]
+   }
+          }
+        validate_certs: no
+      delegate_to: localhost

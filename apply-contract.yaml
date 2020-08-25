@@ -1,0 +1,77 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Apply a contract
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/mo/uni.json
+        method: post
+        content:
+          {
+"polUni":{
+      "attributes":{
+      },
+      "children":[
+         {
+            "fvTenant":{
+               "attributes":{
+                  "name":"{{TENANT}}"
+               },
+               "children":[
+                  {
+                     "cloudApp":{
+                        "attributes":{
+                           "name":"{{TENANT}}anp"
+                        },
+                        "children":[
+                           {
+                              "cloudEPg":{
+                                 "attributes":{
+                                    "name":"{{PROVIDER}}"
+                                 },
+                                 "children":[
+                                    {
+                                       "fvRsProv":{
+                                          "attributes":{
+                                             "tnVzBrCPName":"{{CONTRACT}}"
+                                          },
+                                          "children":[
+                                          ]
+                                       }
+                                    }
+                                 ]
+                              }
+                           },
+                           {
+                              "cloudExtEPg":{
+                                 "attributes":{
+                                    "name":"{{CONSUMER}}"
+                                 },
+                                 "children":[
+                                    {
+                                       "fvRsCons":{
+                                          "attributes":{
+                                             "tnVzBrCPName":"{{CONTRACT}}"
+                                          },
+                                          "children":[
+                                          ]
+                                       }
+                                    }
+                                 ]
+                              }
+                           }
+                        ]
+                     }
+                  }
+               ]
+            }
+         }
+      ]
+   }
+          }
+        validate_certs: no
+      delegate_to: localhost

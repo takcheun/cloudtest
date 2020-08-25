@@ -1,0 +1,45 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Add an entry to an existing filter 
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/brc-{{CONTRACT}}.json
+        method: post
+        content:
+          {
+         "vzBrCP":{
+      "attributes":{
+         "name":"{{CONTRACT}}"
+      },
+      "children":[
+         {
+            "vzSubj":{
+               "attributes":{
+                  "name":"default"
+               },
+               "children":[
+                  {
+                     "vzRsSubjFiltAtt":{
+                        "attributes":{
+                           "action":"permit",
+                           "tnVzFilterName":"{{FILTER}}",
+                           "status":"created"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         }
+      ]
+   }
+          }
+        validate_certs: no
+      delegate_to: localhost

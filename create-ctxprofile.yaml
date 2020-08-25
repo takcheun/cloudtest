@@ -1,0 +1,108 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a tenant
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/ctxprofile-{{TENANT}}ctxprof.json
+        method: post
+        content:
+          {
+             "cloudCtxProfile":{
+               "attributes":{
+                 "name":"{{TENANT}}ctxprof",
+                 "status":"created"
+             },
+            "children":[
+         {
+            "cloudCidr":{
+               "attributes":{
+                  "primary":"yes",
+                  "addr":"{{CIDR}}/{{CIDRMASK}}",
+                  "status":"created"
+               },
+               "children":[
+                  {
+                     "cloudSubnet":{
+                        "attributes":{
+                           "name":"subnet-{{SUBNET2}}_24",
+                           "ip":"{{SUBNET2}}/{{SUBNET2MASK}}",
+                           "status":"created"
+                        },
+                        "children":[
+                           {
+                              "cloudRsZoneAttach":{
+                                 "attributes":{
+                                    "tDn":"uni/clouddomp/provp-azure/region-{{REGION}}/zone-default"
+                                 },
+                                 "children":[
+
+                                 ]
+                              }
+                           }
+                        ]
+                     }
+                  },
+                  {
+                     "cloudSubnet":{
+                        "attributes":{
+                           "name":"subnet-{{SUBNET1}}_24",
+                           "ip":"{{SUBNET1}}/{{SUBNET1MASK}}",
+                           "status":"created"
+                        },
+                        "children":[
+                           {
+                              "cloudRsZoneAttach":{
+                                 "attributes":{
+                                    "tDn":"uni/clouddomp/provp-azure/region-{{REGION}}/zone-default"
+                                 },
+                                 "children":[
+
+                                 ]
+                              }
+                           }
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "cloudRsCtxProfileToRegion":{
+               "attributes":{
+                  "tDn":"uni/clouddomp/provp-azure/region-{{REGION}}"
+               },
+               "children":[
+
+               ]
+            }
+         },
+         {
+            "cloudRsToCtx":{
+               "attributes":{
+                  "tnFvCtxName":"{{TENANT}}vrf"
+               },
+               "children":[
+
+               ]
+            }
+         },
+         {
+            "cloudRsCtxProfileToGatewayRouterP":{
+               "attributes":{
+                  "tDn":"uni/tn-infra/gwrouterp-default"
+               },
+               "children":[
+
+               ]
+            }
+         }
+      ]
+             }
+          }
+        validate_certs: no
+      delegate_to: localhost

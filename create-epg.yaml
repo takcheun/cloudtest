@@ -1,0 +1,46 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create an EPG
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/cloudapp-{{TENANT}}anp/cloudepg-{{EPG}}.json
+        method: post
+        content:
+          {
+            "cloudEPg":{
+              "attributes":{
+                "name":"{{EPG}}",
+                "status":"created"
+              },
+              "children":[
+            {
+                "cloudEPSelector":{
+                "attributes":{
+                      "name":"{{EPG}}-epsel",
+                    "matchExpression":"IP=='{{SUBNET}}/{{SUBNETMASK}}'",
+                    "status":"created"
+                },
+                "children":[
+                ]
+                }
+            },
+            {
+                "cloudRsCloudEPgCtx":{
+                "attributes":{
+                      "tnFvCtxName":"{{TENANT}}vrf",
+                    "status":""
+                },
+                "children":[
+                ]
+                }
+            }
+                ]
+            }
+          }
+        validate_certs: no
+      delegate_to: localhost

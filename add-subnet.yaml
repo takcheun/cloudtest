@@ -1,0 +1,78 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a subnet
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/ctxprofile-{{TENANT}}ctxprof.json
+        method: post
+        content:
+          {
+             "cloudCtxProfile":{
+                 "attributes":{
+                   "name":"{{TENANT}}ctxprof"
+             },
+            "children":[
+             {
+               "cloudCidr":{
+                 "attributes":{
+                      "addr":"{{CIDR}}/{{CIDRMASK}}",
+                      "primary":"yes",
+                    "status":"modified"
+                },
+                "children":[
+                      {
+                         "cloudSubnet":{
+                            "attributes":{
+                            "ip":"{{SUBNET}}/{{SUBNETMASK}}",
+                            "status":"created"
+                            },
+                                "children":[
+                                {
+                                "cloudRsZoneAttach":{
+                                     "attributes":{
+                                        "tDn":"uni/clouddomp/provp-azure/region-{{REGION}}/zone-default"
+                                    },
+                                    "children":[
+                                     ]
+                                    }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                  }
+             },
+         {
+            "cloudRsCtxProfileToRegion":{
+               "attributes":{
+                  "annotation":"",
+                  "status":"",
+                  "tDn":"uni/clouddomp/provp-azure/region-{{REGION}}"
+               },
+               "children":[
+
+               ]
+            }
+         },
+         {
+            "cloudRsToCtx":{
+               "attributes":{
+                  "annotation":"",
+                  "status":"",
+                  "tnFvCtxName":"{{TENANT}}vrf"
+               },
+               "children":[
+
+               ]
+            }
+         }
+      ]
+   }
+          }
+        validate_certs: no
+      delegate_to: localhost

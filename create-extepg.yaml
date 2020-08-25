@@ -1,0 +1,47 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create an External EPG
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/cloudapp-{{TENANT}}anp/cloudextepg-{{EPG}}.json
+        method: post
+        content:
+          {
+            "cloudExtEPg":{
+                "attributes":{
+                    "name":"{{EPG}}-extepg",
+                    "routeReachability":"internet",
+                    "status":"created"
+            },
+            "children":[
+            {
+                "cloudExtEPSelector":{
+                    "attributes":{
+                        "name":"{{EPG}}-epsel",
+                        "subnet":"{{SUBNET}}/{{SUBNETMASK}}",
+                        "status":"created"
+                },
+                "children":[
+                ]
+                }
+            },
+            {
+                "cloudRsCloudEPgCtx":{
+                    "attributes":{
+                    "tnFvCtxName":"{{TENANT}}vrf",
+                    "status":""
+                },
+                "children":[
+                ]
+                }
+            }
+            ]
+            }
+          }
+        validate_certs: no
+      delegate_to: localhost

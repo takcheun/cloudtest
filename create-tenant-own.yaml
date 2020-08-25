@@ -1,0 +1,47 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a tenant
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/mo/uni.json
+        method: post
+        content:
+          {
+            "fvTenant":{
+            "attributes":{
+               "name":"{{TENANT}}",
+               "descr":"created from awx",
+               "status":"created"
+          },
+          "children":[
+             {
+                "fvRsCloudAccount":{
+                   "attributes":{
+                      "tDn":"uni/tn-{{TENANT}}/act-[{{SUBSCRIPTION}}]-vendor-azure"
+                   },
+                   "children":[
+                   ]
+                }
+             },
+             {
+                "cloudAccount":{
+                   "attributes":{
+                      "accessType":"managed",
+                      "id":"{{SUBSCRIPTION}}",
+                      "name":"",
+                      "vendor":"azure"
+                   },
+                   "children":[
+                   ]
+                }
+             }
+          ]
+       }
+          }
+        validate_certs: no
+      delegate_to: localhost
