@@ -1,0 +1,124 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a tenant
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-infra/cld-{{FWNAME}}.json
+        method: post
+        content:     
+        {
+        "cloudLDev":{
+      "attributes":{
+         "name":"{{FWNAME}}",
+         "svcType":"FW",
+         "status":"created"
+      },
+      "children":[
+         {
+            "cloudRsLDevToCtx":{
+               "attributes":{
+                  "tDn":"uni/tn-infra/ctx-overlay-2"
+               },
+               "children":[
+
+               ]
+            }
+         },
+         {
+            "cloudLIf":{
+               "attributes":{
+                  "name":"{{FWNAME}}1-ex",
+                  "status":"created"
+               },
+               "children":[
+                  {
+                     "cloudEPSelector":{
+                        "attributes":{
+                           "name":"{{FWNAME}}1-ex",
+                           "matchExpression":"IP=='10.100.2.4'",
+                           "status":"created"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "cloudLIf":{
+               "attributes":{
+                  "name":"{{FWNAME}}1-in",
+                  "status":"created"
+               },
+               "children":[
+                  {
+                     "cloudEPSelector":{
+                        "attributes":{
+                           "name":"{{FWNAME}}1-in",
+                           "matchExpression":"IP=='10.100.3.4'",
+                           "status":"created"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "cloudLIf":{
+               "attributes":{
+                  "name":"{{FWNAME}}2-ex",
+                  "status":"created"
+               },
+               "children":[
+                  {
+                     "cloudEPSelector":{
+                        "attributes":{
+                           "name":"{{FWNAME}}2-ex",
+                           "matchExpression":"IP=='10.100.2.5'",
+                           "status":"created"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "cloudLIf":{
+               "attributes":{
+                  "name":"{{FWNAME}}2-in",
+                  "status":"created"
+               },
+               "children":[
+                  {
+                     "cloudEPSelector":{
+                        "attributes":{
+                           "name":"{{FWNAME}}2-in",
+                           "matchExpression":"",
+                           "status":"created"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         }
+      ]
+   }
+        }         
+        validate_certs: no
+      delegate_to: localhost

@@ -1,0 +1,45 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a tenant
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/mo/uni.json
+        method: post
+        content:
+          {
+          "fvTenant":{
+      "attributes":{
+
+      },
+      "children":[
+         {
+            "vzCPIf":{
+               "attributes":{
+                  "name":"export-{{CONTRACT}}",
+                  "status":"created,modified"
+               },
+               "children":[
+                  {
+                     "vzRsIf":{
+                        "attributes":{
+                           "tDn":"uni/tn-{{TENANTPROVIDER}}/brc-aws-contract",
+                           "status":"created,modified"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         }
+      ]
+   }
+          }
+        validate_certs: no
+      delegate_to: localhost

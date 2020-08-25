@@ -1,0 +1,37 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a tenant
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/clb-{{NLBNAME}}.json
+        method: post
+        content:  
+        {
+            "cloudLB":{
+      "attributes":{
+         "scheme":"internal",
+         "name":"{{NLBNAME}}",
+         "type":"network",
+         "status":"created"
+      },
+      "children":[
+         {
+            "cloudRsLDevToCloudSubnet":{
+               "attributes":{
+                  "tDn":"uni/tn-{{TENANT}}/ctxprofile-{{CTXPROFILE}}/cidr-[{{CIDR}}/16]-[{{NLBSUBNET/24}}]"
+               },
+               "children":[
+
+               ]
+            }
+         }
+      ]
+   }
+        }         
+        validate_certs: no
+      delegate_to: localhost

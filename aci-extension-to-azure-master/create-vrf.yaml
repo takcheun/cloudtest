@@ -1,0 +1,25 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a vrf
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/ctx-{{TENANT}}vrf.json
+        method: post
+        content:
+          {
+            "fvCtx":{
+              "attributes":{
+                "name":"{{TENANT}}vrf",
+                "status":"created"
+             },
+               "children":[
+      ]
+            }    
+          }
+        validate_certs: no
+      delegate_to: localhost

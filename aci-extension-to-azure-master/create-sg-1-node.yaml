@@ -1,0 +1,174 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a SG with Node 1 = NLB
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/AbsGraph-{{SGNAME}}.json
+        method: post
+        content:
+         {
+   "vnsAbsGraph":{
+      "attributes":{
+         "name":"{{SGNAME}}",
+         "type":"cloud",
+         "status":"created"
+      },
+      "children":[
+         {
+            "vnsAbsTermNodeCon":{
+               "attributes":{
+                  "name":"T1"
+               },
+               "children":[
+                  {
+                     "vnsAbsTermConn":{
+                        "attributes":{
+                           "name":"ConsTermConn"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsNode":{
+               "attributes":{
+                  "funcType":"GoTo",
+                  "name":"N0",
+                  "managed":"yes",
+                  "funcTemplateType":"ADC_ONE_ARM"
+               },
+               "children":[
+                  {
+                     "vnsRsNodeToCloudLDev":{
+                        "attributes":{
+                           "tDn":"uni/tn-{{TENANT}}/clb-{{NLBNAME}}"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsAbsFuncConn":{
+                        "attributes":{
+                           "name":"provider",
+                           "attNotify":"no",
+                           "connType":"none"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsAbsFuncConn":{
+                        "attributes":{
+                           "name":"consumer",
+                           "attNotify":"no",
+                           "connType":"none"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsConnection":{
+               "attributes":{
+                  "connDir":"provider",
+                  "adjType":"L3",
+                  "connType":"external",
+                  "name":"CON0"
+               },
+               "children":[
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-{{TENANT}}/AbsGraph-{{SGNAME}}/AbsTermNodeCon-T1/AbsTConn"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-{{TENANT}}/AbsGraph-{{SGNAME}}/AbsNode-N0/AbsFConn-consumer"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsConnection":{
+               "attributes":{
+                  "connDir":"provider",
+                  "adjType":"L3",
+                  "connType":"external",
+                  "name":"CON1"
+               },
+               "children":[
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-{{TENANT}}/AbsGraph-{{SGNAME}}/AbsTermNodeProv-T2/AbsTConn"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-{{TENANT}}/AbsGraph-{{SGNAME}}/AbsNode-N0/AbsFConn-provider"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsTermNodeProv":{
+               "attributes":{
+                  "name":"T2"
+               },
+               "children":[
+                  {
+                     "vnsAbsTermConn":{
+                        "attributes":{
+                           "name":"ProvTermConn"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         }
+      ]
+   }
+          }
+        validate_certs: no
+      delegate_to: localhost

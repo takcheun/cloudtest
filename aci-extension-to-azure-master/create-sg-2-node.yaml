@@ -1,0 +1,254 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a  SG with Node 1 = NLB and Node 2 = FW
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/AbsGraph-{{SG}}.json
+        method: post
+        content:
+          {
+   "vnsAbsGraph":{
+      "attributes":{
+         "name":"{{SG}}}}",
+         "type":"cloud",
+         "status":"created"
+      },
+      "children":[
+         {
+            "vnsAbsTermNodeCon":{
+               "attributes":{
+                  "name":"T1"
+               },
+               "children":[
+                  {
+                     "vnsAbsTermConn":{
+                        "attributes":{
+                           "name":"ConsTermConn"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsNode":{
+               "attributes":{
+                  "funcType":"GoTo",
+                  "name":"N0",
+                  "managed":"yes",
+                  "funcTemplateType":"ADC_ONE_ARM"
+               },
+               "children":[
+                  {
+                     "vnsRsNodeToCloudLDev":{
+                        "attributes":{
+                           "tDn":"uni/tn-infra/clb-{{NLB}}"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsAbsFuncConn":{
+                        "attributes":{
+                           "name":"provider",
+                           "attNotify":"no",
+                           "connType":"redir"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsAbsFuncConn":{
+                        "attributes":{
+                           "name":"consumer",
+                           "attNotify":"no",
+                           "connType":"redir"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsNode":{
+               "attributes":{
+                  "funcType":"GoTo",
+                  "name":"N1",
+                  "managed":"no",
+                  "funcTemplateType":"ADC_ONE_ARM"
+               },
+               "children":[
+                  {
+                     "vnsRsNodeToCloudLDev":{
+                        "attributes":{
+                           "tDn":"uni/tn-infra/cld-{{NLB}}"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsAbsFuncConn":{
+                        "attributes":{
+                           "name":"provider",
+                           "attNotify":"no",
+                           "connType":"none",
+                           "deviceLIfName":"{{FW}}-int"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsAbsFuncConn":{
+                        "attributes":{
+                           "name":"consumer",
+                           "attNotify":"no",
+                           "connType":"none",
+                           "deviceLIfName":"{{FW}}-int"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsConnection":{
+               "attributes":{
+                  "connDir":"provider",
+                  "adjType":"L3",
+                  "connType":"external",
+                  "name":"CON0"
+               },
+               "children":[
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-jmr1spoke6/AbsGraph-{{SG}}/AbsTermNodeCon-T1/AbsTConn"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-jmr1spoke6/AbsGraph-{{SG}}/AbsNode-N0/AbsFConn-consumer"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsConnection":{
+               "attributes":{
+                  "connDir":"provider",
+                  "adjType":"L3",
+                  "connType":"external",
+                  "name":"CON1"
+               },
+               "children":[
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-jmr1spoke6/AbsGraph-{{SG}}/AbsNode-N0/AbsFConn-provider"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-jmr1spoke6/AbsGraph-{{SG}}/AbsNode-N1/AbsFConn-consumer"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsConnection":{
+               "attributes":{
+                  "connDir":"provider",
+                  "adjType":"L3",
+                  "connType":"external",
+                  "name":"CON2"
+               },
+               "children":[
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-jmr1spoke6/AbsGraph-{{SG}}/AbsTermNodeProv-T2/AbsTConn"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  },
+                  {
+                     "vnsRsAbsConnectionConns":{
+                        "attributes":{
+                           "tDn":"uni/tn-jmr1spoke6/AbsGraph-{{SG}}/AbsNode-N1/AbsFConn-provider"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         },
+         {
+            "vnsAbsTermNodeProv":{
+               "attributes":{
+                  "name":"T2"
+               },
+               "children":[
+                  {
+                     "vnsAbsTermConn":{
+                        "attributes":{
+                           "name":"ProvTermConn"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         }
+      ]
+   }
+          }
+        validate_certs: no
+      delegate_to: localhost

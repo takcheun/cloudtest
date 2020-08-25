@@ -1,0 +1,546 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a tenant
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/mo/uni.json
+        method: post
+        content:
+          {
+            "polUni": {
+    "attributes": {
+      "annotation": "", 
+      "dn": "uni", 
+      "nameAlias": "", 
+      "userdom": "all"
+    }, 
+    "children": [
+      {
+        "fvTenant": {
+          "attributes": {
+            "annotation": "", 
+            "descr": "", 
+            "dn": "uni/tn-{{TENANT}}", 
+            "name": "{{TENANT}}", 
+            "nameAlias": "", 
+            "ownerKey": "", 
+            "ownerTag": "", 
+            "userdom": ":all:"
+          }, 
+          "children": [
+            {
+              "vzBrCP": {
+                "attributes": {
+                  "annotation": "", 
+                  "azNetworkSecurityGroupRule": "", 
+                  "descr": "", 
+                  "dn": "", 
+                  "intent": "install", 
+                  "name": "{{TENANT}}-internet-contract", 
+                  "nameAlias": "", 
+                  "ownerKey": "", 
+                  "ownerTag": "", 
+                  "prio": "unspecified", 
+                  "scope": "global", 
+                  "targetDscp": "unspecified", 
+                  "userdom": ":all:"
+                }, 
+                "children": [
+                  {
+                    "vzSubj": {
+                      "attributes": {
+                        "annotation": "", 
+                        "consMatchT": "AtleastOne", 
+                        "descr": "", 
+                        "dn": "", 
+                        "name": "default", 
+                        "nameAlias": "", 
+                        "prio": "unspecified", 
+                        "provMatchT": "AtleastOne", 
+                        "revFltPorts": "yes", 
+                        "targetDscp": "unspecified", 
+                        "userdom": ":all:"
+                      }, 
+                      "children": [
+                        {
+                          "vzRsSubjFiltAtt": {
+                            "attributes": {
+                              "action": "permit", 
+                              "annotation": "", 
+                              "directives": "", 
+                              "dn": "", 
+                              "priorityOverride": "default", 
+                              "tnVzFilterName": "mgmt-filter", 
+                              "userdom": ":all:"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }, 
+            {
+              "vnsSvcCont": {
+                "attributes": {
+                  "annotation": "", 
+                  "dn": "", 
+                  "userdom": "all"
+                }
+              }
+            }, 
+            {
+              "fvRsTenantMonPol": {
+                "attributes": {
+                  "annotation": "", 
+                  "dn": "", 
+                  "tnMonEPGPolName": "", 
+                  "userdom": "all"
+                }
+              }
+            }, 
+            {
+              "fvCtx": {
+                "attributes": {
+                  "annotation": "", 
+                  "bdEnforcedEnable": "no", 
+                  "descr": "", 
+                  "dn": "", 
+                  "ipDataPlaneLearning": "enabled", 
+                  "knwMcastAct": "permit", 
+                  "name": "{{TENANT}}vrf", 
+                  "nameAlias": "", 
+                  "ownerKey": "", 
+                  "ownerTag": "", 
+                  "pcEnfDir": "ingress", 
+                  "pcEnfPref": "enforced", 
+                  "userdom": ":all:"
+                }, 
+                "children": [
+                  {
+                    "fvRsVrfValidationPol": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tnL3extVrfValidationPolName": "", 
+                        "userdom": "all"
+                      }
+                    }
+                  }, 
+                  {
+                    "vzAny": {
+                      "attributes": {
+                        "annotation": "", 
+                        "descr": "", 
+                        "dn": "", 
+                        "matchT": "AtleastOne", 
+                        "name": "", 
+                        "nameAlias": "", 
+                        "prefGrMemb": "disabled", 
+                        "userdom": "all"
+                      }
+                    }
+                  }, 
+                  {
+                    "fvRsOspfCtxPol": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tnOspfCtxPolName": "", 
+                        "userdom": "all"
+                      }
+                    }
+                  }, 
+                  {
+                    "fvRsCtxToEpRet": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tnFvEpRetPolName": "", 
+                        "userdom": "all"
+                      }
+                    }
+                  }, 
+                  {
+                    "fvRsCtxToExtRouteTagPol": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tnL3extRouteTagPolName": "", 
+                        "userdom": "all"
+                      }
+                    }
+                  }, 
+                  {
+                    "fvRsBgpCtxPol": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tnBgpCtxPolName": "", 
+                        "userdom": "all"
+                      }
+                    }
+                  }
+                ]
+              }
+            }, 
+            {
+              "fvRsCloudAccount": {
+                "attributes": {
+                  "annotation": "", 
+                  "dn": "", 
+                  "tDn": "uni/tn-infra/act-[{{SUBSCRIPTION}}]-vendor-azure", 
+                  "userdom": ":all:"
+                }
+              }
+            }, 
+            {
+              "cloudAzureStatsPol": {
+                "attributes": {
+                  "annotation": "", 
+                  "descr": "", 
+                  "dn": "", 
+                  "enableStats": "yes", 
+                  "name": "default", 
+                  "nameAlias": "", 
+                  "ownerKey": "", 
+                  "ownerTag": "", 
+                  "userdom": "all"
+                }
+              }
+            }, 
+            {
+              "cloudCtxProfile": {
+                "attributes": {
+                  "annotation": "", 
+                  "azResourceGroup": "", 
+                  "azVirtualNetwork": "", 
+                  "descr": "", 
+                  "dn": "", 
+                  "name": "{{TENANT}}ctxprof", 
+                  "nameAlias": "", 
+                  "ownerKey": "", 
+                  "ownerTag": "", 
+                  "type": "regular", 
+                  "userdom": ":all:"
+                }, 
+                "children": [
+                  {
+                    "cloudRsToCtx": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tnFvCtxName": "{{TENANT}}vrf", 
+                        "userdom": "all"
+                      }
+                    }
+                  }, 
+                  {
+                    "cloudRsCtxProfileToStatsPol": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tDn": "uni/tn-{{TENANT}}/azstatpol-default", 
+                        "userdom": "all"
+                      }
+                    }
+                  }, 
+                  {
+                    "cloudRsCtxProfileToRegion": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tDn": "uni/clouddomp/provp-azure/region-{{REGION}}", 
+                        "userdom": ":all:"
+                      }
+                    }
+                  }, 
+                  {
+                    "cloudRsCtxProfileToGatewayRouterP": {
+                      "attributes": {
+                        "annotation": "", 
+                        "dn": "", 
+                        "tDn": "uni/tn-infra/gwrouterp-default", 
+                        "type": "spoke", 
+                        "userdom": ":all:"
+                      }
+                    }
+                  }, 
+                  {
+                    "cloudCidr": {
+                      "attributes": {
+                        "addr": "{{CIDR}}/16", 
+                        "annotation": "", 
+                        "createdBy": "USER", 
+                        "descr": "", 
+                        "dn": "", 
+                        "name": "", 
+                        "nameAlias": "", 
+                        "ownerKey": "", 
+                        "ownerTag": "", 
+                        "primary": "yes", 
+                        "userdom": ":all:"
+                      }, 
+                      "children": [
+                        {
+                          "cloudSubnet": {
+                            "attributes": {
+                              "annotation": "", 
+                              "azSubnet": "", 
+                              "azSubnetNetworkSecurityGroup": "", 
+                              "descr": "", 
+                              "dn": "", 
+                              "hostIfPDn": "", 
+                              "ip": "{{SUBNET2}}/24", 
+                              "name": "subnet-{{SUBNET2}}_24", 
+                              "nameAlias": "", 
+                              "scope": "private", 
+                              "usage": "user", 
+                              "userdom": ":all:", 
+                              "zone": ""
+                            }, 
+                            "children": [
+                              {
+                                "cloudRsZoneAttach": {
+                                  "attributes": {
+                                    "annotation": "", 
+                                    "dn": "", 
+                                    "tDn": "uni/clouddomp/provp-azure/region-{{REGION}}/zone-default", 
+                                    "userdom": ":all:"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }, 
+                        {
+                          "cloudSubnet": {
+                            "attributes": {
+                              "annotation": "", 
+                              "azSubnet": "", 
+                              "azSubnetNetworkSecurityGroup": "", 
+                              "descr": "", 
+                              "dn": "", 
+                              "hostIfPDn": "", 
+                              "ip": "{{SUBNET1}}/24", 
+                              "name": "subnet-{{SUBNET1}}_24", 
+                              "nameAlias": "", 
+                              "scope": "private", 
+                              "usage": "user", 
+                              "userdom": ":all:", 
+                              "zone": ""
+                            }, 
+                            "children": [
+                              {
+                                "cloudRsZoneAttach": {
+                                  "attributes": {
+                                    "annotation": "", 
+                                    "dn": "", 
+                                    "tDn": "uni/clouddomp/provp-azure/region-{{REGION}}/zone-default", 
+                                    "userdom": ":all:"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }, 
+            {
+              "cloudApp": {
+                "attributes": {
+                  "annotation": "", 
+                  "descr": "", 
+                  "dn": "", 
+                  "name": "{{TENANT}}anp", 
+                  "nameAlias": "", 
+                  "ownerKey": "", 
+                  "ownerTag": "", 
+                  "userdom": ":all:"
+                }, 
+                "children": [
+                  {
+                    "cloudExtEPg": {
+                      "attributes": {
+                        "annotation": "", 
+                        "descr": "", 
+                        "dn": "", 
+                        "exceptionTag": "", 
+                        "floodOnEncap": "disabled", 
+                        "matchT": "AtleastOne", 
+                        "name": "internet-extepg", 
+                        "nameAlias": "", 
+                        "prefGrMemb": "exclude", 
+                        "prio": "unspecified", 
+                        "routeReachability": "internet", 
+                        "userdom": ":all:"
+                      }, 
+                      "children": [
+                        {
+                          "fvRsProv": {
+                            "attributes": {
+                              "annotation": "", 
+                              "dn": "", 
+                              "intent": "install", 
+                              "matchT": "AtleastOne", 
+                              "prio": "unspecified", 
+                              "tnVzBrCPName": "{{TENANT}}-internet-contract", 
+                              "userdom": ":all:"
+                            }
+                          }
+                        }, 
+                        {
+                          "fvRsCustQosPol": {
+                            "attributes": {
+                              "annotation": "", 
+                              "dn": "", 
+                              "tnQosCustomPolName": "", 
+                              "userdom": "all"
+                            }
+                          }
+                        }, 
+                        {
+                          "fvRsCons": {
+                            "attributes": {
+                              "annotation": "", 
+                              "dn": "", 
+                              "intent": "install", 
+                              "prio": "unspecified", 
+                              "tnVzBrCPName": "{{TENANT}}-internet-contract", 
+                              "userdom": ":all:"
+                            }
+                          }
+                        }, 
+                        {
+                          "cloudRsCloudEPgCtx": {
+                            "attributes": {
+                              "annotation": "", 
+                              "dn": "", 
+                              "tnFvCtxName": "{{TENANT}}vrf", 
+                              "userdom": "all"
+                            }
+                          }
+                        }, 
+                        {
+                          "cloudExtEPSelector": {
+                            "attributes": {
+                              "annotation": "", 
+                              "descr": "", 
+                              "dn": "", 
+                              "isShared": "yes", 
+                              "matchExpression": "", 
+                              "name": "internet-extepg-ep-sel", 
+                              "nameAlias": "", 
+                              "ownerKey": "", 
+                              "ownerTag": "", 
+                              "sourceSite": "on-prem", 
+                              "subnet": "0.0.0.0/0", 
+                              "userdom": ":all:"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }, 
+                  {
+                    "cloudEPg": {
+                      "attributes": {
+                        "annotation": "", 
+                        "azApplicationSecurityGroup": "", 
+                        "azNetworkSecurityGroup": "", 
+                        "descr": "", 
+                        "dn": "", 
+                        "exceptionTag": "", 
+                        "floodOnEncap": "disabled", 
+                        "matchT": "AtleastOne", 
+                        "name": "{{TENANT}}epg1", 
+                        "nameAlias": "", 
+                        "prefGrMemb": "exclude", 
+                        "prio": "unspecified", 
+                        "userdom": ":all:"
+                      }, 
+                      "children": [
+                        {
+                          "fvRsProv": {
+                            "attributes": {
+                              "annotation": "", 
+                              "dn": "", 
+                              "intent": "install", 
+                              "matchT": "AtleastOne", 
+                              "prio": "unspecified", 
+                              "tnVzBrCPName": "{{TENANT}}-internet-contract", 
+                              "userdom": ":all:"
+                            }
+                          }
+                        }, 
+                        {
+                          "fvRsCustQosPol": {
+                            "attributes": {
+                              "annotation": "", 
+                              "dn": "", 
+                              "tnQosCustomPolName": "", 
+                              "userdom": "all"
+                            }
+                          }
+                        }, 
+                        {
+                          "fvRsCons": {
+                            "attributes": {
+                              "annotation": "", 
+                              "dn": "", 
+                              "intent": "install", 
+                              "prio": "unspecified", 
+                              "tnVzBrCPName": "{{TENANT}}-internet-contract", 
+                              "userdom": ":all:"
+                            }
+                          }
+                        }, 
+                        {
+                          "cloudRsCloudEPgCtx": {
+                            "attributes": {
+                              "annotation": "", 
+                              "dn": "", 
+                              "tnFvCtxName": "{{TENANT}}vrf", 
+                              "userdom": "all"
+                            }
+                          }
+                        }, 
+                        {
+                          "cloudEPSelector": {
+                            "attributes": {
+                              "annotation": "", 
+                              "descr": "", 
+                              "dn": "", 
+                              "matchExpression": "IP=='{{SUBNET2}}/24'", 
+                              "name": "{{TENANT}}epg1-epsel", 
+                              "nameAlias": "", 
+                              "ownerKey": "", 
+                              "ownerTag": "", 
+                              "userdom": ":all:"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+        }
+        validate_certs: no
+      delegate_to: localhost

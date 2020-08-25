@@ -1,0 +1,25 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create an Application Network Profile (ANP)
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/cloudapp-{{ANP}}.json
+        method: post
+        content:
+          {
+           "cloudApp":{
+             "attributes":{
+                "name":"{{ANP}}",
+                "status":"created"
+            },
+            "children":[
+            ]
+            }
+          }
+        validate_certs: no
+      delegate_to: localhost

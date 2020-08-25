@@ -1,0 +1,47 @@
+--- 
+- hosts: all 
+  connection: local
+  tasks: 
+
+    - name: Create a contract
+      aci_rest:
+        host: '{{ inventory_hostname }}'
+        username: '{{ lookup("env", "ANSIBLE_NET_USERNAME")}}'
+        password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD")}}'
+        path: /api/node/mo/uni/tn-{{TENANT}}/brc-{{CONTRACT}}.json
+        method: post
+        content:
+          {
+             "vzBrCP":{
+              "attributes":{
+         "scope":"context",
+         "name":"{{CONTRACT}}",
+         "status":"created"
+      },
+      "children":[
+         {
+            "vzSubj":{
+               "attributes":{
+                  "name":"default"
+               },
+               "children":[
+                  {
+                     "vzRsSubjFiltAtt":{
+                        "attributes":{
+                           "action":"permit",
+                           "tnVzFilterName":"{{FILTER}}",
+                           "status":"created"
+                        },
+                        "children":[
+
+                        ]
+                     }
+                  }
+               ]
+            }
+         }
+      ]
+   }
+          }
+        validate_certs: no
+      delegate_to: localhost
